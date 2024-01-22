@@ -5,23 +5,26 @@ import 'package:path/path.dart';
 class SqlDb {
   // this is made to not make init again and again
   static Database? _db;
-  Future<Database?> get db async{
-    if (_db ==null){
+
+  Future<Database?> get db async {
+    if (_db == null) {
       _db = await initalDb();
       return _db;
-    }else{
+    } else {
       return _db;
     }
   }
+
   // here we init the database and creat the tables
-  initalDb() async{
+  initalDb() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, 'mazdb.db');
-    Database mydb = await openDatabase(path, onCreate: _onCreate, version:2, onUpgrade:_onUpgrade);
+    Database mydb = await openDatabase(
+        path, onCreate: _onCreate, version: 2, onUpgrade: _onUpgrade);
     return mydb;
-
   }
-  _onUpgrade(Database db, int oldversion, int newversion)async{
+
+  _onUpgrade(Database db, int oldversion, int newversion) async {
     await db.execute('''
         CREATE TABLE "products"(
         "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -30,10 +33,11 @@ class SqlDb {
         "pro_desc" TEXT NOT NULL
         )
         ''');
-    
+
     print("onUpgrae =========================");
   }
-  _onCreate(Database db, int version) async{
+
+  _onCreate(Database db, int version) async {
     await db.execute('''
         CREATE TABLE "notes"(
         "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
