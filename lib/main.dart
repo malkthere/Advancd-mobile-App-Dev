@@ -1,4 +1,6 @@
 //import 'package:db003_b_try/sqldb.dart';
+import 'dart:ffi';
+
 import 'package:db_try1mobapp1/sqldb.dart';
 import 'package:flutter/material.dart';
 
@@ -51,9 +53,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-//TextEditingController delcon=TextEditingController();
-//TextEditingController newnote=TextEditingController();
-//TextEditingController readcon=TextEditingController();
+TextEditingController delcon=TextEditingController();
+TextEditingController newnote=TextEditingController();
+TextEditingController readcon=TextEditingController();
 
 
   SqlDb sqlDb=SqlDb();
@@ -77,56 +79,64 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-           /* Padding(
+            Padding(
               padding: EdgeInsets.all(15),
               child: TextField(
-               // controller: newnote,
+                controller: newnote,
                 maxLines: 4,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                                     labelText: 'Enter a note',
                   hintText: 'Enter your Note overe here',
-                ),      ), ),*/
+                ),      ), ),
             Center(
               child: MaterialButton(
                 color: Colors.amber,
                 onPressed:() async{
-                  int response = await sqlDb.insertData("INSERT INTO 'notes' ('note') VALUES ('my note is ..... some text over here ')");
+                  int response = await sqlDb.insertData("INSERT INTO 'notes' ('note') VALUES ('"+newnote.text+"')");
                   print(response);
                 },
                 child:Text("Insert data"),
               ),
             ),
-            /*Center(
+            Center(
               child: TextField(
-              //  controller: readcon,
+                controller: readcon,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter a note No.',
+                  hintText: 'Enter a Note number to read',
+                ),
               ),
-            ),*/
+            ),
             Center(
               child: MaterialButton(
                 color: Colors.blue,
                 onPressed:() async{
-                  List<Map> response=  await sqlDb.readData("SELECT * FROM 'notes' where id=1");
+                  List<Map> response=  await sqlDb.readData("SELECT note FROM 'notes' where id = "+readcon.text);
+
+
+
                   print(response);
 
                 },
                 child:Text("Read data"),
               ),
             ),
-        /*Padding(
+        Padding(
             padding: EdgeInsets.all(15),
             child: TextField(
-              //controller: delcon,
+              controller: delcon,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'note No to delet',
                          hintText: 'Enter a Note No. to be deleted',
-                ),      ), ),*/
+                ),      ), ),
             Center(
                child: MaterialButton(
                 color: Colors.blue,
                 onPressed:() async{
-                  int response=  await sqlDb.deleteData("DELETE FROM 'notes' WHERE id=1");
+                  int response=  await sqlDb.deleteData("DELETE FROM 'notes' WHERE id="+delcon.text);
                   print(response);
 
                 },
