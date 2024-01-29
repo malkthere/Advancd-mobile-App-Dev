@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 //import 'package:db003_b_try/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'showdata.dart';
+import 'package:db_try1mobapp1/SecondPage.dart';
+import 'package:db_try1mobapp1/sqldb.dart';
+import 'package:flutter/material.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -55,13 +59,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  TextEditingController delcon = TextEditingController();
+  TextEditingController newnote = TextEditingController();
+  TextEditingController readcon = TextEditingController();
+  TextEditingController updtcon = TextEditingController();
+  SqlDb sqlDb = SqlDb();
+  bool isLoading = false;
+  List<Map> data = [];
 
-  TextEditingController delcon=TextEditingController();
-  TextEditingController newnote=TextEditingController();
-  TextEditingController readcon=TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
+  void fetchData() async {
+    List<Map> response = await sqlDb.readData("SELECT * FROM notes");
+    setState(() {
+      data = response;
+    });
+  }
 
-  SqlDb sqlDb=SqlDb();
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -76,92 +94,112 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: TextField(
-                controller: newnote,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter a note',
-                  hintText: 'Enter your Note overe here',
-                ),      ), ),
-            Center(
-              child: MaterialButton(
-                color: Colors.amber,
-                onPressed:() async{
-                  int response = await sqlDb.insertData("INSERT INTO 'notes' ('note') VALUES ('"+newnote.text+"')");
-                  print(response);
-                },
-                child:Text("Insert data"),
+      body: Scrollbar(
+        showTrackOnHover: true,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: newnote,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Enter a note',
+                    hintText: 'Enter your Note overe here',
+                  ),
+                ),
               ),
-            ),
-            Center(
-              child: TextField(
-                controller: readcon,
-              ),
-            ),
-            Center(
-              child: MaterialButton(
-                color: Colors.blue,
-                onPressed:() async{
-                  List<Map> response=  await sqlDb.readData("SELECT * FROM 'notes' where id = "+readcon.text+"");
-                  print(response);
+              Center(
+                child: MaterialButton(
+                  color: Colors.amber,
+                  onPressed: () async {
+                    int response = await sqlDb.insertData(
+                        "INSERT INTO notes ('note' ) VALUES (' ${newnote.text} ' )");
 
-                },
-                child:Text("Read data"),
+                    print(response);
+                  },
+                  child: Text("Insert data"),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: TextField(
-                controller: delcon,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'note No to delet',
-                  hintText: 'Enter a Note No. to be deleted',
-                ),      ), ),
-            Center(
-              child: MaterialButton(
-                color: Colors.blue,
-                onPressed:() async{
-                  int response=  await sqlDb.deleteData("DELETE FROM 'notes' where id ="+delcon.text+"");
-                  print(response);
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: delcon,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'note No to delet',
+                    hintText: 'Enter a Note No. to be deleted',
+                  ),
+                ),
+              ),
+              Center(
+                child: MaterialButton(
+                  color: Colors.blue,
+                  onPressed: () async {
+                    int response = await sqlDb.deleteData(
+                        "DELETE FROM 'notes' WHERE id= " + delcon.text);
+                    print(response);
+                  },
+                  child: Text("Delete data"),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: updtcon,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'note Number to update',
+                    hintText: 'Enter a Note No. to be update',
+                  ),
+                ),
+              ),
+              Center(
+                child: MaterialButton(
+                  color: Colors.blue,
+                  onPressed: () async {
+                    int response = await sqlDb.updateData(
+                        "UPDATE 'notes' SET note = 'not two' WHERE id = " +
+                            updtcon.text);
+                    print(response);
+                  },
+                  child: Text("update data"),
+                ),
+              ),
+              Center(
+                child: MaterialButton(
+                  color: Colors.blue,
+                  onPressed: () async {
+                    // List<Map> response =
+                    //    await sqlDb.readData("SELECT * FROM notes ");
 
-                },
-                child:Text("Delete data"),
-              ),
-            ),
-            Center(
-              child: MaterialButton(
-                color: Colors.blue,
-                onPressed:() async{
-                  int response=  await sqlDb.updateData("UPDATE 'notes' SET note = 'not two' WHERE id = 2");
-                  print(response);
+                    setState(() {
+                      isLoading = true;
+                    });
 
-                },
-                child:Text("update a note"),
+                    List<Map> response =
+                    await sqlDb.readData("SELECT * FROM notes ");
+                    setState(() {
+                      data = response;
+                      isLoading = false;
+                    });
+                    print(response);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SecondPage()),
+                    );
+                  },
+                  child: Text("Read data"),
+                ),
               ),
-            ),
-            Center(
-              child: MaterialButton(
-                color: Colors.blue,
-                onPressed:() {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage1(title: 'show data',)));
-                },
-                child:Text("Show All of the notes"),
-              ),
-            )
-          ],
+            ],
+          ),
         ),
-      ),       // This trailing comma makes auto-formatting nicer for build methods.
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
-
